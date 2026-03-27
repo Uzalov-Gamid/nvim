@@ -1,84 +1,80 @@
-# Neovim config (LazyVim)
+# Neovim: минимальный LazyVim под Python и DevOps
 
-**English:** Personal Neovim setup based on [LazyVim](https://github.com/LazyVim/LazyVim), tuned for **Python** and **DevOps** (YAML, JSON, Docker, Terraform, Helm, Ansible).
+Личная конфигурация на базе [LazyVim](https://github.com/LazyVim/LazyVim): меньше лишнего, упор на **Python**, **shell (Bash)**, **PostgreSQL** и типичный инфраструктурный стек (Docker, Terraform, YAML, JSON).
 
-**Русский:** Личная конфигурация Neovim на базе LazyVim с упором на Python и инфраструктурные задачи.
+## Чем эта настройка отличается от стандартного LazyVim
 
-## Features
+| Аспект | Обычный LazyVim (стартовый шаблон) | Этот репозиторий |
+|--------|-------------------------------------|------------------|
+| **Объём** | Много примеров (`example.lua`), комментарии из шаблона, опциональный тяжёлый dashboard | Только нужные файлы: `colorscheme`, `mason`, без `example.lua` и без кастомного ASCII-заголовка в dashboard |
+| **Языковые модули (extras)** | Вы подключаете сами или копируете длинный список | Задан узкий набор под задачи: Python, SQL, YAML, JSON, Docker, Terraform. **Нет** Helm и Ansible по умолчанию — меньше плагинов и LSP; при необходимости их можно включить через `:LazyExtras` |
+| **PostgreSQL / SQL** | Не включено, пока не добавите extra | Включён `lang.sql`: treesitter для SQL, [vim-dadbod](https://github.com/tpope/vim-dadbod) + UI, sqlfluff через Mason — удобно для `.sql`, миграций и работы с БД |
+| **Bash / shell** | В LazyVim нет отдельного extra «bash»; подсветка и парсеры идут через treesitter, инструменты — по желанию | Явно через Mason ставятся **shellcheck** и **shfmt** (см. `lua/plugins/mason.lua`) для линтинга и форматирования shell-скриптов |
+| **Python** | Через `:LazyExtras` → `lang.python` | Подключён в `lazy.lua` сразу: LSP (Pyright и т.д. по документации extra), форматирование, интеграции LazyVim для Python |
+| **Проверка обновлений плагинов** | В шаблоне часто `checker.enabled = true` | `checker.enabled = false` — тише, без фоновых проверок (можно включить обратно в `lua/config/lazy.lua`) |
+| **Тема** | Часто TokyoNight по умолчанию | **Gruvbox** с контрастом `hard` (`lua/plugins/colorscheme.lua`) |
+| **Комментарии в коде** | Английские пояснения из upstream | Практически убраны; один важный комментарий в `lua/config/options.lua` про строки подключения к БД для dadbod |
+| **Секреты БД** | Документация LazyVim рекомендует `.lazy.lua` | `vim.g.dbs` инициализирован пустым; в комментарии указано хранить реальные URL в `~/.config/nvim/.lazy.lua` и не коммитить |
 
-| Area | What you get |
-|------|----------------|
-| **Python** | LSP (Pyright / BasedPyright — см. документацию extra), форматирование, тесты (neotest), опционально отладка (nvim-dap) |
-| **YAML / JSON** | LSP, схемы (в т.ч. Kubernetes/OpenAPI через yaml extra) |
-| **Docker** | Dockerfile / Compose: treesitter, LSP, линтинг |
-| **Terraform / HCL** | treesitter, terraform-ls, интеграции с инструментами из extra |
-| **Helm** | подсветка, `helm_ls` |
-| **Ansible** | поддержка плейбуков из LazyVim extra |
+Итого: это не форк LazyVim, а **тонкий слой** поверх него — отключены лишние примеры, сужен список extras, добавлены SQL и инструменты для shell, упрощён визуальный шум.
 
-Цветовая схема: **Gruvbox** (hard). Стартовый экран: кастомный заголовок в [snacks.nvim](https://github.com/folke/snacks.nvim) dashboard.
+## Что внутри по задачам
 
-## Requirements
+- **Python** — extra `lang.python` (LSP, форматирование, тесты по документации LazyVim).
+- **Bash** — парсеры/подсветка как в LazyVim; **shellcheck** + **shfmt** из Mason.
+- **PostgreSQL и SQL** — extra `lang.sql`, dadbod/DBUI, при необходимости настройте `vim.g.dbs` или `.lazy.lua`.
+- **DevOps-форматы** — YAML (манифесты, CI), JSON, Dockerfile, Terraform/HCL.
 
-- [Neovim](https://neovim.io/) **0.10+** (как у актуального LazyVim; при сомнении см. [installation](https://lazyvim.github.io/installation))
+## Требования
+
+- [Neovim](https://neovim.io/) **0.10+** (как у актуального LazyVim)
 - `git`
-- [Nerd Font](https://www.nerdfonts.com/) — для иконок в статуслайне и файловом дереве (рекомендуется)
-- Для Mason / LSP: компилятор toolchain по мере необходимости (часто достаточно того, что подтянет LazyVim)
+- [Nerd Font](https://www.nerdfonts.com/) — для иконок в UI (рекомендуется)
 
-## Install
+## Установка
 
 Резервная копия текущего конфига:
 
 ```bash
 mv ~/.config/nvim ~/.config/nvim.bak
-mv ~/.local/share/nvim ~/.local/share/nvim.bak  # опционально: кэш lazy и плагины
+mv ~/.local/share/nvim ~/.local/share/nvim.bak
 ```
 
-Клонирование (замените URL на свой форк):
+Клонирование (подставьте свой URL):
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/nvim.git ~/.config/nvim
 ```
 
-Запустите `nvim` — подтянется **lazy.nvim**, затем плагины. Первый старт может занять минуту.
+Первый запуск `nvim` подтянет плагины через lazy.nvim.
 
-Дальше:
-
-- `:Lazy` — список плагинов
-- `:Mason` — LSP/линтеры/форматтеры
-- `:LazyExtras` — включить/выключить языковые модули (список extras задаётся в `lua/config/lazy.lua` **до** `import = "plugins"`)
-
-## Repository layout
+## Структура
 
 ```
 ~/.config/nvim/
-├── init.lua                 # точка входа → config.lazy
+├── init.lua
 ├── lua/
 │   ├── config/
-│   │   ├── lazy.lua         # bootstrap lazy.nvim, порядок: lazyvim.plugins → extras → plugins/
-│   │   ├── options.lua      # опции (пока по умолчанию LazyVim)
-│   │   ├── keymaps.lua      # свои хоткеи
-│   │   └── autocmds.lua     # автокоманды
+│   │   ├── lazy.lua      # LazyVim + extras + lazy.nvim
+│   │   ├── options.lua   # vim.g.dbs и др.
+│   │   ├── keymaps.lua   # пусто — добавляйте свои хоткеи
+│   │   └── autocmds.lua
 │   └── plugins/
-│       ├── colorscheme.lua  # Gruvbox + выбор темы LazyVim
-│       └── dashboard.lua    # заголовок snacks dashboard
+│       ├── colorscheme.lua
+│       └── mason.lua     # shellcheck, shfmt
 └── README.md
 ```
 
-## Customization tips
+## Полезные команды
 
-1. **Отключить лишние extras** — закомментируйте соответствующую строку `{ import = "lazyvim.plugins.extras...." }` в `lua/config/lazy.lua` (только **между** `lazyvim.plugins` и `{ import = "plugins" }`) или снимите модуль в `:LazyExtras`.
-2. **Python: Ruff / виртуальное окружение** — см. [LazyVim — Python](https://lazyvim.github.io/extras/lang/python).
-3. **Дополнительно по вкусу (не в репозитории):**
-   - **Регламенты и политики:** extra `lang.rego` (Open Policy Agent)
-   - **Kubernetes манифесты:** часто покрывается YAML extra + kubectl в системе; плагины вроде kubectl-обёрток — по желанию
-   - **Отладка:** убедитесь, что включён DAP-трек для Python (см. документацию `lang.python`)
-4. **Свои хоткеи** — `lua/config/keymaps.lua` (загружается после старта LazyVim).
+- `:Lazy` — плагины  
+- `:Mason` — бинарники LSP/линтеров/форматтеров  
+- `:LazyExtras` — добавить, например, `lang.helm` или `lang.ansible`  
+- Для БД (после настройки подключений): `:DBUI` и команды из [документации SQL extra](https://lazyvim.github.io/extras/lang/sql)
 
-## Links
+## Ссылки
 
-- [LazyVim documentation](https://lazyvim.github.io/)
+- [Документация LazyVim](https://lazyvim.github.io/)
 - [lazy.nvim](https://github.com/folke/lazy.nvim)
 
-## License
-
-Конфигурация — ваша; плагины под лицензиями соответствующих репозиториев.
+Лицензия: ваш конфиг свободен; плагины — по лицензиям своих репозиториев.

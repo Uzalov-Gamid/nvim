@@ -3,6 +3,7 @@ return {
     "folke/snacks.nvim",
     opts = {
       dashboard = {
+        width = 72,
         preset = {
           header = [[
  ██████╗ ██████╗   █████╗  ██████╗  ██████╗  ██████╗  ██╗  ██████╗ 
@@ -13,6 +14,17 @@ return {
  ╚═════╝ ╚═╝  ╚═╝ ╚═╝  ╚═╝ ╚═════╝  ╚═════╝  ╚═════╝  ╚═╝  ╚═════╝ 
                                                  
 ]],
+        },
+        sections = {
+          { section = "header" },
+          {
+            text = {
+              { "Python · Bash · SQL · Infra", align = "center", hl = "SnacksDashboardDesc" },
+            },
+            padding = 1,
+          },
+          { section = "keys", gap = 1, padding = 1 },
+          { section = "startup" },
         },
       },
     },

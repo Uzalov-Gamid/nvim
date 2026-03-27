@@ -1,3 +1,12 @@
--- Options are automatically loaded before lazy.nvim startup
--- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
--- Add any additional options here
+-- Строки подключения для dadbod / DBUI. Секреты — в ~/.config/nvim/.lazy.lua (не коммитить).
+vim.g.dbs = {}
+
+vim.o.background = "dark"
+
+vim.opt.listchars = {
+  tab = "▸ ",
+  trail = "·",
+  extends = "…",
+  precedes = "…",
+  nbsp = "␣",
+}
