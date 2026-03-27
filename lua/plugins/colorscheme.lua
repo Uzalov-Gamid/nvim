@@ -1,6 +1,11 @@
 return {
-  { "ellisonleao/gruvbox.nvim", priority = 1000, opts = { contrast = "hard" } },
-
+  {
+    "ellisonleao/gruvbox.nvim",
+    priority = 1000,
+    opts = {
+      contrast = "hard",
+    },
+  },
   {
     "LazyVim/LazyVim",
     opts = {
